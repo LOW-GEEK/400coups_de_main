@@ -1,0 +1,44 @@
+:root {
+    --bleu-azur : #41c1ba;
+    --blanc : #F7F7F7;
+    --bleu-marine : #365b6d;
+    --bleu-kaki: #6C9286;
+    --ocre: #F2F1EC;
+    --bleu-ciel: #289DD2;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--blanc);
+}
+
+header {
+    background-color: var(--bleu-marine);
+    border-radius: 5px;
+}
+
+.nav-item {
+    /* padding: 30px; */
+    /* margin-right: 50px; */
+    border-radius: 5px;
+}
+
+#navbar {
+    background-color: var(--ocre);
+    border-radius: 1px;
+}
+
+
+
+footer {
+    background-color: var(--bleu-marine);
+
+        
+        
+        
+}
+
+
+
+
+
