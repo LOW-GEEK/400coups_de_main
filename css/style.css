@@ -6,6 +6,9 @@
     --ocre: #F2F1EC;
     --bleu-ciel: #289DD2;
 }
+a {
+    text-decoration: none;
+}
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -14,13 +17,13 @@ body {
 
 header {
     background-color: var(--bleu-marine);
-    border-radius: 5px;
+    border-radius: 20px;
 }
 
 .nav-item {
     /* padding: 30px; */
     /* margin-right: 50px; */
-    border-radius: 5px;
+    border-radius: 20px;
 }
 
 #navbar {

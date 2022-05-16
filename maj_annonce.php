@@ -1,16 +1,26 @@
-<?php  require_once 'inc/log_bdd.php';
-       require_once 'inc/fonction.php';
+<?php
+require_once 'inc/log_bdd.php'; 
 
-// debug($_SESSION);   
-// Les informations du membres connecté passé en variable
-if (estConnecte()) {
-$id_membre = $_SESSION['membre']['id_membre'];
-$prenom = $_SESSION['membre']['prenom'];
-$nom = $_SESSION['membre']['nom'];
-$pseudo = $_SESSION['membre']['pseudo'];
-}
-if (!empty($_POST)) {
-    // var_dump($_POST);
+if (isset($_GET['id_annonce']) ) {// on demande le détail d'un annonce
+    // debug($_GET);
+    $resultat = $pdoLOG->prepare( " SELECT * FROM annonces WHERE id_annonce = :id_annonce " );
+    $resultat->execute(array(
+      ':id_annonce' => $_GET['id_annonce']// on associe le marqueur vide à l'id_employes
+    ));
+    // debug($resultat->rowCount());
+      if ($resultat->rowCount() == 0) { // si le rowCount est égal à 0 c'est qu'il n'y a pas d'annonce
+          header('location:profil.php');// redirection vers la page de départ
+          exit();// arrêtedu script
+      }  
+      $maj = $resultat->fetch(PDO::FETCH_ASSOC);//je passe les infos dans une variable
+      // debug($maj);// ferme if isset accolade suivante
+      } else {
+      header('location:maj_annonce.php');// si j'arrive sur la page sans rien dans l'url
+      exit();// arrête du script
+  }
+    // MAJ d'une annonce
+    if ( !empty($_POST) ) {
+    // debug($_POST);
     $_POST['type_annonce'] = htmlspecialchars($_POST['type_annonce']);
     $_POST['type_de_cdm'] = htmlspecialchars($_POST['type_de_cdm']);
     $_POST['titre'] = htmlspecialchars($_POST['titre']);
@@ -21,36 +31,37 @@ if (!empty($_POST)) {
     $_POST['categorie'] = htmlspecialchars($_POST['categorie']);
     $_POST['pseudo'] = htmlspecialchars($_POST['pseudo']);
     $_POST['date_pub'] = htmlspecialchars($_POST['date_pub']);
-
-
-
+        // Traitement photo
     $photo = '';
      if(!empty($_FILES['photo']['name'])) {
         $photo = 'photos/' .$_FILES['photo']['name'];
         copy($_FILES['photo']['tmp_name'], '' .$photo);
         } // fin du traitement photo
- 
-    $insertion = executeRequete(" INSERT INTO annonces (id_membre, type_de_cdm, type_annonce, titre, description, code_postal, ville, adresse, categorie, photo, pseudo, date_pub) VALUES (:id_membre, :type_de_cdm ,  :type_annonce, :titre, :description, :code_postal, :ville, :adresse, :categorie, :photo, :pseudo, :date_pub) ",
 
-    array(
-        ':id_membre'=> $id_membre, // id_membre qui vient de  $_SESSION
-        ':type_de_cdm' => $_POST['type_de_cdm'],
-        ':type_annonce' => $_POST['type_annonce'],
-        ':titre' => $_POST['titre'],
+	$resultat = $pdoLOG->prepare( " UPDATE annonces SET type_annonce = :type_annonce, type_de_cdm = :type_de_cdm, titre = :titre, description = :description, code_postal = :code_postal, adresse = :adresse, ville = :ville, categorie = :categorie,  photo = :photo, pseudo = :pseudo, date_pub = :date_pub WHERE id_annonce = :id_annonce " );// requete préparée avec des marqueurs
+
+	$resultat->execute( array(
+		':type_annonce' => $_POST['type_annonce'],
+		':type_de_cdm' => $_POST['type_de_cdm'],
+		':titre' => $_POST['titre'],
         ':description' => $_POST['description'],
-        ':code_postal' => $_POST['code_postal'],
+		':code_postal' => $_POST['code_postal'],
+		':adresse' => $_POST['adresse'],
         ':ville' => $_POST['ville'],
-        ':adresse' => $_POST['adresse'],
         ':categorie' => $_POST['categorie'],
         ':photo' => $photo,
         ':pseudo' => $_POST['pseudo'],
         ':date_pub' => $_POST['date_pub'],
+		':id_annonce' => $_GET['id_annonce'],
+	));
 
-
-     ));
+    if ($resultat) {
+        $contenu .='<div class="alert alert-success">Vous avez mis à jour vos informations avec succès, reconnecter vous pour actualiser ! <br> <a href="connexion.php" class="btn btn-secondary">Retourner dans votre profil</a> ';
+    } else {
+        $contenu .='<div class="alert alert-danger">Erreur lors de la mise à jour !</div>';
+    }
 }
 $date = date('d/m/Y, H:i');
-
 
 ?>
 <!DOCTYPE html>
@@ -82,7 +93,7 @@ $date = date('d/m/Y, H:i');
                         <div class="row">
                             <label for="pseudo">Pseudo</label>
                             <div class="col">
-                                <input readonly="readonly" type="text" name="pseudo" id="pseudo" value="<?php echo $pseudo; ?>" >
+                                <input readonly="readonly" type="text" name="pseudo" id="pseudo" value="<?php echo $_SESSION['membre']['pseudo']; ?>" >
                             </div>
                             <label for="date_pub">Date de publication</label>
                             <div class="col">
@@ -108,7 +119,7 @@ $date = date('d/m/Y, H:i');
                         <div class="row">
                             <div class="col-12 form-group mt-2">
                                 <label for="titre">Titre *</label>
-                                <input type="text" name="titre" id="titre" value="" class="form-control" required>
+                                <input type="text" name="titre" id="titre" value="<?php echo $maj['titre']; ?>" class="form-control" required>
                             </div>
                         </div>
                         <div class="col- form-group mt-2">
@@ -127,7 +138,7 @@ $date = date('d/m/Y, H:i');
                             
                         <div class="form-group mt-2">
                             <label for="description">Description *</label>
-                            <textarea name="description" id="description" class="form-control"  required></textarea>
+                            <textarea name="description" id="description" class="form-control"  required><?php echo $maj['description']; ?></textarea>
                         </div>
                         <div class="col-6 form-group mt-2">
                                 <input type="file" name="photo" id="photo" accept="image/png, image/jpeg">
@@ -135,17 +146,17 @@ $date = date('d/m/Y, H:i');
                         <div class="row">
                             <div class="col form-group mt-2">
                                 <label for="code_postal">Code postal*</label>
-                                <input type="text" name="code_postal" id="code_postal" value="" class="form-control"  required> 
+                                <input type="text" name="code_postal" id="code_postal" value="<?php echo $maj['code_postal']; ?>" class="form-control"  required> 
                             </div>
                             <div class="col form-group mt-2">        
                                 <label for="ville">Ville*</label>
-                                <input type="text" name="ville" id="ville" value="" class="form-control"  required> 
+                                <input type="text" name="ville" id="ville" value="<?php echo $maj['ville']; ?>" class="form-control"  required> 
                             </div>
                             
                         </div>
                         <div class="col form-group mt-2">        
                             <label for="adresse">Adresse*</label>
-                            <input type="text" name="adresse" id="adresse" value="" class="form-control"> 
+                            <input type="text" name="adresse" id="adresse" value="<?php echo $maj['adresse']; ?>" class="form-control"> 
                         </div>
                         <div class="form-group mt-2 text-center">
                             <input type="submit" value="Validez" class="btn btn-sm btn-success"> 

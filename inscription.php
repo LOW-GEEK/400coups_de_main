@@ -55,11 +55,6 @@ if ( !empty($_POST) ) {
       if ($membre->rowCount() > 0) {
           $contenu .='<div class="alert alert-danger">Le pseudo est indisponible veuillez en choisir un autre !</div>';
       } else {
-        
- 
-            
-         
-
           $mdp = password_hash($_POST['mdp'], PASSWORD_DEFAULT);//bcrypt
 
           $succes = executeRequete( " INSERT INTO membres (prenom, nom, civilite, pseudo, mail, adresse, code_postal, ville, mobile, mdp) VALUES (:prenom, :nom, :civilite, :pseudo, :mail, :adresse, :code_postal, :ville, :mobile, :mdp) ",

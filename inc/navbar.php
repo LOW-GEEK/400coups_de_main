@@ -26,7 +26,8 @@
                     </li>
                     <?php } else { ?>
                     <li class="nav-item">
-                        <a class="nav-link border btn btn-outline-info" href="profil.php">Profil</a>
+                        
+                        <a class="nav-link border btn btn-outline-info" href="profil.php"><i class="bi bi-person-fill" width="50" height="50"></i>Profil</a>
                     </li>
 
                     <li class="nav-item">

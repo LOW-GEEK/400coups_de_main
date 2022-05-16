@@ -22,25 +22,6 @@
       $contenu .= '<div class="alert alert-success"> Votre compte a été supprimer</div>';
     }
   }
-  // requête affichage annonce du membre
-  $requete = $pdoLOG->query ('SELECT * FROM annonces WHERE id_membre ="' .$_SESSION["membre"]['id_membre'].'"');
-
-  // SUPPRESSION D'UNE ANNONCE
-  // debug($_GET);
-  if (isset($_GET['action']) && $_GET['action'] == 'supprimer' && isset($_GET['id_annonce'])) {
-    $resultat = $pdoLOG->prepare( " DELETE FROM annonces WHERE id_annonce = :id_annonce " );
-
-    $resultat->execute(array(
-      ':id_annonce' => $_GET['id_annonce']
-    ));
-
-    if ($resultat->rowCount() == 0) {
-      $contenu .= '<div class="alert alert-danger"> Erreur de suppression</div>';
-    } else {
-      $contenu .= '<div class="alert alert-success"> Annonce supprimé</div>';
-    }
-  }
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -79,8 +60,7 @@
                       if(estAdmin()) { // si le membre est 'admin' il n'a pas les mêmes accès qu'un membre 'client'
                       echo '<a class="btn btn-info" href="' .RACINE_SITE. 'admin/accueil.php">Espace admin</a>';
                       // echo 'coucou';
-                      }  
-                       
+                      }   
                     ?>
                     <a  class="btn btn-danger" href="?action=supprimer&id_membre=<?php echo $id_membre; ?>" onclick="return(confirm('Nous sommes désolés de vous voir partir, confirmez la suppression de votre compte.'))">Supprimez votre compte</a>
                   </div>
@@ -155,47 +135,28 @@
         </div>
         <!-- Fin row -->
         <div class="row">
-          <div class="col-sm-12 col-md-6 col-lg-3">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Id annonce</th>
-                  <th>Id membre</th>
-                  <th>Type d'annonce</th>
-                  <th>Type de cdm</th>
-                  <th>Titre</th>
-                  <th>Description</th>
-                  <th>adresse</th>
-                  <th>Code Postal</th>
-                  <th>Ville</th>
-                  <th>Catégorie</th>
-                  <th>Photo</th>
-                </tr>
-              </thead>
-              <tbody>
-              <?php while ( $annonce = $requete->fetch( PDO::FETCH_ASSOC )) { ?>
-              <tr>
-              <td><?php echo $annonce['id_annonce']; ?></td>                   
-              <td><?php echo $annonce['id_membre']; ?></td>
-              <td><?php echo $annonce['type_annonce']; ?></td>
-              <td><?php echo $annonce['type_de_cdm']; ?></td>
-              <td><?php echo $annonce['titre']; ?></td>
-              <td><?php echo $annonce['description']; ?></td>
-              <td><?php echo $annonce['code_postal']; ?></td>
-              <td><?php echo $annonce['ville']; ?></td>
-              <td><?php echo $annonce['adresse']; ?></td>
-              <td><?php echo $annonce['categorie']; ?></td>
-              <td><?php echo $annonce['photo']; ?></td>
-
-              <td><a href="maj_annonce.php?id_annonce=<?php echo $annonce['id_annonce']; ?>">Mise à jour</a></td>
-              <td><a href="?action=supprimer&id_annonce=<?php echo $annonce['id_annonce']; ?>" onclick="return(confirm('Voulez-vous supprimer cette annonce ? '))">suppression</a></td>
-              </tr>
-                  
-              <?php }  ?>
-            </table>
-          </div>
-        </div>
-        <!-- fin row  -->
+        <?php 
+          $resultat = $pdoLOG->query ('SELECT * FROM annonces WHERE id_membre ="' .$_SESSION["membre"]['id_membre'].'"');
+          while ($annonce = $resultat->fetch(PDO::FETCH_ASSOC)) {
+          ?>
+            <div class="col-sm-6 col-md-3 mt-5">
+              <div class="card" style="width: 18rem;">
+                <img src="<?php echo $annonce['photo']; ?>" class="card-img-top" alt="illustration annonce">
+                <div class="card-body">
+                  <h5 class="card-title"><?php echo $annonce['titre']; ?></h5>
+                  <p class="card-text"><?php echo $annonce['description']; ?></p>
+                  <!-- <p class="card-text">publié par: <?php echo $annonce['pseudo']; ?></p> -->
+                  <p class="card-text">le: <?php echo $annonce['date_pub']; ?></p>
+                  <a href="fiche_annonce.php?id_annonce=$annonce[id_annonce]" class="btn btn-primary">Détail</a>
+                </div>
+                <!-- fin card body  -->
+              </div>
+              <!-- fin card  -->
+            </div>
+            <!-- fin col  -->
+        <?php } ?>
+      </div>
+      <!-- fin row  -->
       </div>
       <!-- Fin main -->
     </div>
